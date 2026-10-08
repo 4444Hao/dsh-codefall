@@ -7,19 +7,34 @@
 
 ## 快速开始
 
-```bash
-dsh plugin --profile desktop add github:4444Hao/dsh-codefall   
-# 安装（约 8 秒，自动登记 bundle）
-# 然后重启应用
-# 初次使用时，开机动画会默认直到你移动鼠标/点击/滚轮/按键结束
+在桌面端 **设置 → 插件 → 添加插件** 里填：
+
 ```
-其他方法：
+dsh-codefall
+```
+
+安装时**别关进度弹窗**，完成后点「立即启用」，然后**重启应用**。
+
+命令行等价（走 npm 镜像，约 2 秒，无需代理）：
+
 ```bash
+dsh plugin --profile desktop add dsh-codefall
+```
+
+其他来源：
+
+```bash
+# 从 GitHub 仓库（约 8 秒，需要能访问 GitHub）
+dsh plugin --profile desktop add github:4444Hao/dsh-codefall
+
+# 从 GitHub Release 的预构建包
 dsh plugin --profile desktop add https://github.com/4444Hao/dsh-codefall/releases/download/v0.1.0/dsh-codefall-0.1.0.tgz
-```
-```bash
+
+# 从本地已下载的 tgz
 dsh plugin --profile desktop add D:\下载\dsh-codefall-0.1.0.tgz
 ```
+
+首次启动时，开机动画会一直持续到你移动鼠标/点击/滚轮/按键。
 
 浅色模式是"墨迹雨"（白底深绿）：
 ![浅色模式下的墨迹雨](docs/images/boot-light.png)
