@@ -30,13 +30,6 @@ dsh plugin --profile desktop add github:4444Hao/dsh-codefall   # 安装（约 8 
 
 ![浅色模式下的墨迹雨](docs/images/boot-light.png)
 
-## 怎么确认装成功了
-
-| 检查 | 期望 |
-|---|---|
-| 重启后的界面 | 开机出现数字雨；界面蓝色变绿 |
-| 设置里 | 左侧多出一栏 **开机动画codefall**（动画参数 + 绿色主题开关 + 色相滑杆） |
-| 接口自检 | <http://127.0.0.1:19387/codefall/api> 返回 JSON（回环地址，无需令牌） |
 
 卸载：`dsh plugin --profile desktop remove dsh-codefall`。主题层会随插件一起移除。
 
@@ -68,34 +61,11 @@ dsh plugin --profile desktop add github:4444Hao/dsh-codefall   # 安装（约 8 
 
 原理、为什么收饱和度、以及一个"按色相看是蓝但其实是白字黑底"的坑，见 [`docs/DESIGN.md` §4.4.1](docs/DESIGN.md)。
 
-## 已知限制
+## 已知局限
 
 1. **桌面端改动画参数需重启**（绿色主题与色相除外，即时生效）。
-2. **Windows 标题栏那三个图标**是 Chromium 的窗口控件叠加层，画在网页之上，`z-index` 够不到。插件靠**改 caption 配色**隐掉它们（仍可点击，窗口功能不受影响）。这是**依赖宿主内部实现的 hack**，可用 `hideWindowControls: false` 关闭；最坏情况是图标看不见但仍可点，下次启动自动恢复。
-3. **代码高亮的语法色只跟随了两个蓝色**。关键字粉/参数橙/函数紫/注释灰**故意保留**——那是功能性色码，全绿只会更难读。
-4. **不给性能数字**：帧率与启动开销**尚未在真实硬件上量过**，宁可空着也不写没测过的数。
-5. **只在 Windows 桌面端人工验证过**。macOS / Linux 的代码路径是安全的（标题栏部分是 Windows 专属，找不到探针时完全空操作），但没实机验证。
+2.  **只在 Windows 桌面端人工验证过**。macOS / Linux 的代码路径是安全的（标题栏部分是 Windows 专属，找不到探针时完全空操作），但没实机验证。
 
-## 开发
-
-```bash
-npm run test:fast   # host + client 两套，零依赖
-npm test            # 加上渲染器像素测试（需要可选依赖 @napi-rs/canvas）
-```
-
-| 套件 | 覆盖 |
-|---|---|
-| `tools/host-test.mjs`（96） | 用假 Cordis 上下文真的跑注入脚本：结束策略、运行时配置刷新、标题栏隐藏、设置路由 |
-| `tools/client-test.mjs`（67） | 用极小 React 桩真的渲染并点击设置界面：slot 注册、服务 guard、主题层、算色与黄金样本比对 |
-| `tools/smoke.mjs`（29） | 渲染器像素行为：首帧在下雨、缩放不重启、消退、参数重调 |
-
-`docs/images/` 里的图由 `npm run docs:images`、动图由 `npm run docs:animation` 用**本仓库自己的渲染器**生成（动图 32 帧 / 800×450 / 444KB，靠全局调色板与透明差分压下来）。目前**没有真实应用截图**，欢迎 PR 补上。
-
-> **本仓库不包含任何 DeepSeek 的代码或资源。** 主题工具链（`npm run theme`）读取的是你自己安装的应用里的文件，输出落在 gitignore 的 `tools/out/`。
-
-改这个插件的人请先读 [`docs/DESIGN.md`](docs/DESIGN.md)：那里记录了在 `0.2.0-rc.2` 上逐条核实过的扩展点契约、实测证据，以及一次真实事故的复盘。
-
-遇到问题请带上 **Harness 版本与操作系统**、**`http://127.0.0.1:19387/codefall/api?diag=1` 的输出**、以及现象截图。
 
 ## 许可证
 
