@@ -13,6 +13,13 @@ dsh plugin --profile desktop add github:4444Hao/dsh-codefall
 # 然后重启应用
 # 初次使用时，开机动画会默认直到你移动鼠标/点击/滚轮/按键结束
 ```
+其他方法：
+```bash
+dsh plugin --profile desktop add https://github.com/4444Hao/dsh-codefall/releases/download/v0.1.0/dsh-codefall-0.1.0.tgz
+```
+```bash
+dsh plugin --profile desktop add D:\下载\dsh-codefall-0.1.0.tgz
+```
 
 浅色模式是"墨迹雨"（白底深绿）：
 ![浅色模式下的墨迹雨](docs/images/boot-light.png)
