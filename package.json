@@ -1,12 +1,15 @@
 {
   "name": "dsh-codefall",
   "version": "0.1.0",
-  "private": true,
   "description": "dsh-codefall — green digital-rain boot animation plus a green semantic theme for the DeepSeek Harness client.",
   "license": "MIT",
   "author": "4444Hao",
   "type": "module",
   "main": "lib/index.js",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
   "exports": {
     ".": "./lib/index.js",
     "./client": "./lib/client.js",
@@ -42,6 +45,7 @@
   "scripts": {
     "test": "node tools/host-test.mjs && node tools/client-test.mjs && node tools/smoke.mjs",
     "test:fast": "node tools/host-test.mjs && node tools/client-test.mjs",
+    "prepublishOnly": "node tools/host-test.mjs && node tools/client-test.mjs",
     "check": "node --check lib/renderer.js && node --check lib/boot.js && node --check lib/client.js && node --check lib/index.js",
     "frames": "node tools/render-frames.mjs",
     "docs:images": "node tools/make-docs-images.mjs",

@@ -1,0 +1,9 @@
+# This project is developed on Windows as well as Linux/macOS. Normalise the
+# repository to LF so a clone on any platform gets identical bytes — the tools
+# here compare generated output for byte equality, and CRLF noise would break
+# that comparison for reasons that look unrelated to the change.
+* text=auto eol=lf
+
+# Images are compared by content, never by line.
+*.png binary
+*.woff2 binary

@@ -29,9 +29,14 @@
 ## 安装
 
 ```bash
-# 一行安装（插件管理器会把 bundle 自动登记进 profile）
+# 从 GitHub 安装（已实测：8 秒左右，装完即用，无需第二步）
 dsh plugin --profile desktop add github:4444Hao/dsh-codefall
+
+# 或从 npm（已发布后可用）
+dsh plugin --profile desktop add dsh-codefall
 ```
+
+插件管理器会把包装进该 profile 并**自动把 `dsh-codefall` 登记为 bundle**——不需要手工编辑 `package.json` 或 `cordis.patch.yml`。（依据：CLI 的 `plugin` 命令在 pnpm 安装后会对照已安装状态对账 `dsh.profile.bundles`，凡是声明了 `dsh.bundle` 的依赖自动入列。）
 
 装完**重启应用**（桌面端在启动时读取注入与客户端 bundle）。想装在 Web 界面就把 `--profile desktop` 换成 `--profile web`。
 

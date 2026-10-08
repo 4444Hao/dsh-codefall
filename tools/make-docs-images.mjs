@@ -7,7 +7,7 @@
  * remap the plugin uses at runtime — no app assets are involved, so the output is
  * ours to publish. The real-app screenshots are the maintainer's to add.
  */
-import { readFileSync, mkdirSync, writeFileSync, copyFileSync, existsSync } from 'node:fs'
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { CANVAS_HINT, loadCanvas, registerMonoFont } from './canvas-env.mjs'
@@ -31,8 +31,8 @@ const MONO = registerMonoFont(GlobalFonts) || 'monospace'
 ;(0, eval)(readFileSync(join(REPO, 'lib', 'renderer.js'), 'utf8'))
 const R = globalThis.CodefallRenderer
 
-const W = 1280
-const H = 720
+const W = Number(process.env.DSH_CODEFALL_DOC_WIDTH || 1000)
+const H = Math.round((W / 16) * 9)
 const canvas = createCanvas(W, H)
 const scene = R.create(canvas, { createCanvas, fontFamily: MONO, appearance: 'dark', seed: 20261008 })
 scene.resize(W, H, 1)
@@ -152,12 +152,3 @@ samples.forEach((sample, row) => {
 })
 writeFileSync(join(OUT, 'theme-hues.png'), swatch.toBuffer('image/png'))
 console.log('theme-hues.png        the same source colours at each hue stop')
-
-/* ---------------------------------------------------------------- *
- * 3. carry over the renderer's earlier first-frame capture if present
- * ---------------------------------------------------------------- */
-const earlier = join(REPO, 'tools/out/pure-rain-first-frame.png')
-if (existsSync(earlier)) {
-  copyFileSync(earlier, join(OUT, 'boot-dark-1280x800.png'))
-  console.log('boot-dark-1280x800.png  copied from the offline capture')
-}

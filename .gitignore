@@ -11,3 +11,6 @@ pnpm-lock.yaml
 # OS
 Thumbs.db
 desktop.ini
+
+# Packed tarballs from npm pack / pnpm pack
+*.tgz
