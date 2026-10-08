@@ -49,14 +49,16 @@
     "check": "node --check lib/renderer.js && node --check lib/boot.js && node --check lib/client.js && node --check lib/index.js",
     "frames": "node tools/render-frames.mjs",
     "docs:images": "node tools/make-docs-images.mjs",
+    "docs:animation": "node tools/make-docs-animation.mjs",
     "theme": "node tools/extract-app-assets.mjs && node tools/extract-theme-css.mjs && node tools/green-map.mjs --emit"
   },
   "devDependencies": {
-    "@napi-rs/canvas": "^0.1.80"
+    "@napi-rs/canvas": "^0.1.80",
+    "gifenc": "^1.0.3"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "@deepseek-ai/cordis": "^4.0.1"
+    "@deepseek-ai/cordis": "^4.0.1",
+    "react": "^18.2.0"
   },
   "dsh": {
     "bundle": {
