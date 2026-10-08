@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>dsh-codefall · 离线原型（阶段 A）</title>
+    <!--
+      Stage A harness. This page is NOT part of the shipped plugin: it exists so
+      the boot animation and its hand-off can be judged offline, before anything
+      is wired into the harness.
+
+      What it proves, in order:
+        1. the first frame is already a full rain scene (no empty screen),
+        2. the title converges instead of typing out,
+        3. ready() drains the trails and hands off inside the time budget,
+        4. skip / failure / reduced-motion never trap the user.
+    -->
+    <style>
+      :root {
+        --accent: #4176e6; /* the official blue, for before/after comparison */
+        --bg: #151517;
+        --panel: #1c1c1f;
+        --line: #2a2a2f;
+        --text: #ededf0;
+        --dim: #8a8a92;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.5 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+      }
+      /* --- a deliberately plausible stand-in for the host UI --------------- */
+      #host {
+        display: flex;
+        height: 100%;
+      }
+      #host .side {
+        width: 232px;
+        flex: none;
+        border-right: 0.5px solid var(--line);
+        padding: 14px 10px;
+        background: #131315;
+      }
+      #host .side h2 {
+        font-size: 12px;
+        color: var(--dim);
+        margin: 4px 8px 10px;
+        font-weight: 600;
+      }
+      #host .row {
+        padding: 7px 8px;
+        border-radius: 6px;
+        color: var(--dim);
+        font-size: 13px;
+      }
+      #host .row.on {
+        color: var(--text);
+        background: #202024;
+        box-shadow: inset 2px 0 0 var(--accent);
+      }
+      #host .main {
+        flex: 1;
+        padding: 22px 28px;
+        min-width: 0;
+      }
+      #host .main h1 {
+        font-size: 18px;
+        margin: 0 0 6px;
+      }
+      #host a {
+        color: var(--accent);
+      }
+      #host .composer {
+        margin-top: 26px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px 14px;
+        color: var(--dim);
+        background: var(--panel);
+      }
+      #host .composer:focus-within {
+        border-color: var(--accent);
+        outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      }
+      #host .hint {
+        margin-top: 18px;
+        color: #6f6f77;
+        font-size: 12px;
+      }
+
+      /* --- the stage-A control panel --------------------------------------- */
+      #cf-ui {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 2147483001; /* above the boot overlay on purpose */
+        width: 300px;
+        padding: 12px 14px;
+        border: 1px solid #33333a;
+        border-radius: 12px;
+        background: rgba(18, 18, 21, 0.94);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+        font-size: 12px;
+      }
+      #cf-ui h3 {
+        margin: 0 0 8px;
+        font-size: 12px;
+        letter-spacing: 0.02em;
+        color: #b9ffd6;
+      }
+      #cf-ui .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      #cf-ui button {
+        padding: 6px 8px;
+        border: 1px solid #3a3a42;
+        border-radius: 7px;
+        background: #202026;
+        color: var(--text);
+        font: inherit;
+        cursor: pointer;
+      }
+      #cf-ui button:hover {
+        border-color: #4d4d57;
+      }
+      #cf-ui button.pri {
+        border-color: #2f7c4f;
+        background: #17301f;
+        color: #b9ffd6;
+      }
+      #cf-ui label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 7px;
+        color: var(--dim);
+      }
+      #cf-ui input[type="range"] {
+        flex: 1;
+      }
+      #cf-ui input[type="text"],
+      #cf-ui select {
+        flex: 1;
+        min-width: 0;
+        padding: 4px 6px;
+        border: 1px solid #3a3a42;
+        border-radius: 6px;
+        background: #17171b;
+        color: var(--text);
+        font: inherit;
+      }
+      #cf-ui pre {
+        margin: 9px 0 0;
+        padding: 7px 8px;
+        border-radius: 7px;
+        background: #101013;
+        color: #8fe0ae;
+        font: 11px/1.45 Consolas, monospace;
+        white-space: pre-wrap;
+      }
+      #cf-ui .sep {
+        height: 1px;
+        margin: 10px 0 2px;
+        background: #2c2c33;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- The overlay is inserted by lib/boot.js as a sibling of this, above it. -->
+    <div id="host">
+      <aside class="side">
+        <h2>工作区</h2>
+        <div class="row on">dsh-codefall</div>
+        <div class="row">dsh-desktop</div>
+        <div class="row">论文项目</div>
+        <h2 style="margin-top: 18px">会话</h2>
+        <div class="row on">绿色数字雨开机动画</div>
+        <div class="row">插件安装通道验证</div>
+      </aside>
+      <main class="main">
+        <h1>DeepSeek Harness</h1>
+        <p>
+          这是一个<strong>离线原型</strong>：灰色侧栏与这段文字只是模仿宿主界面，
+          用来判断开机动画的交接是否干净。
+          <a href="#">这里是一个蓝色链接</a>，将来会被主题覆盖成绿色。
+        </p>
+        <div class="composer">输入消息…（点一下可以看到蓝色焦点环）</div>
+        <p class="hint">
+          覆盖层播放时：点击任意处或按 Esc 跳过。右下角面板在覆盖层之上，不会被跳过手势吃掉。
+        </p>
+      </main>
+    </div>
+
+    <div id="cf-ui">
+      <h3>dsh-codefall · 阶段 A 原型</h3>
+      <div class="grid">
+        <button class="pri" id="btn-replay">重播</button>
+        <button id="btn-ready">就绪</button>
+        <button id="btn-interact">交互</button>
+        <button id="btn-skip">跳过</button>
+        <button id="btn-fail">失败</button>
+      </div>
+      <div class="sep"></div>
+      <div class="grid">
+        <button data-sim="300">模拟快速 0.3s</button>
+        <button data-sim="2500">模拟正常 2.5s</button>
+        <button data-sim="8000">模拟缓慢 8s</button>
+        <button data-sim="fail">模拟失败</button>
+      </div>
+      <div class="sep"></div>
+      <label>外观 <select id="opt-appearance"><option value="dark">深色</option><option value="light">浅色</option></select></label>
+      <label>画质 <select id="opt-quality"><option>standard</option><option>high</option><option>economy</option></select></label>
+      <label>密度 <input type="range" id="opt-density" min="0.3" max="1" step="0.01" value="0.85" /></label>
+      <label>速度 <input type="range" id="opt-speed" min="0.4" max="2.5" step="0.05" value="1" /></label>
+      <label>标题 <input type="text" id="opt-title" value="" placeholder="留空 = 纯净数字雨" /></label>
+      <label>提示文案 <input type="text" id="opt-hint" value="" placeholder="留空 = 不显示文字" /></label>
+      <label>结束方式 <select id="opt-dismiss"><option value="interaction">交互才结束</option><option value="ready">3 秒后继续</option></select></label>
+      <label>弱动画 <input type="checkbox" id="opt-reduced" /></label>
+      <pre id="cf-state">尚未播放</pre>
+      <div class="hint">
+        默认是纯净数字雨（无标题无文字）。「交互才结束」下：移动鼠标（离开本面板）、点击、滚轮或任意按键都会结束动画。<br />
+        「3 秒后继续」＝ <code>dismiss:"ready"</code> + <code>minDisplayMs:3000</code>。
+      </div>
+    </div>
+
+    <script src="../lib/renderer.js"></script>
+    <script src="../lib/boot.js"></script>
+    <script>
+      ;(function () {
+        var ui = document.getElementById('cf-ui')
+        var out = document.getElementById('cf-state')
+        var simTimer = 0
+
+        function readOptions() {
+          return {
+            appearance: document.getElementById('opt-appearance').value,
+            quality: document.getElementById('opt-quality').value,
+            density: Number(document.getElementById('opt-density').value),
+            speed: Number(document.getElementById('opt-speed').value),
+            titleText: document.getElementById('opt-title').value,
+            dismiss: document.getElementById('opt-dismiss').value,
+            minDisplayMs: document.getElementById('opt-dismiss').value === 'ready' ? 3000 : 900,
+            reducedMotion: document.getElementById('opt-reduced').checked,
+            // Empty by default: the shipped product shows no text at all.
+            statusText: '',
+            hintReady: document.getElementById('opt-hint').value,
+            hintWaitingAcknowledged: document.getElementById('opt-hint').value,
+            // Keep this panel usable: pointer movement over it must not dismiss.
+            ignoreSelector: '#cf-ui',
+            timeoutMs: 15000,
+            onEvent: function (name) {
+              if (['started', 'ready', 'interaction', 'release', 'closing', 'finished', 'tick', 'idle-static'].indexOf(name) >= 0) render()
+            }
+          }
+        }
+
+        function render() {
+          var c = window.__codefallController
+          if (!c) {
+            out.textContent = '动画已退出：宿主界面已交出（无残留覆盖层）'
+            return
+          }
+          var s = c.state()
+          out.textContent =
+            'phase   ' + s.phase + (s.reason ? ' (' + s.reason + ')' : '') + '\n' +
+            'elapsed ' + s.elapsed + ' ms   fps ' + s.fps + (s.idleStopped ? '   [闲置停帧]' : '') + '\n' +
+            'grid    ' + s.cols + ' 列 x ' + s.rows + ' 行   绘制 ' + s.drawCalls + ' 次/帧\n' +
+            'title   ' + s.titleCompleteAt + ' ms 完成收敛   ' + s.appearance + '/' + s.quality + '\n' +
+            'dismiss ' + s.dismiss + '   宿主就绪 ' + s.hostReady + '   已交互 ' + s.interacted + '\n' +
+            'waiting ' + s.waitingFor + '   提示 "' + s.hint + '"' +
+            (c.reducedMotion ? '   弱动画' : '')
+        }
+
+        function start() {
+          if (window.__codefallController) window.__codefallController.destroy()
+          if (simTimer) clearTimeout(simTimer)
+          document.getElementById('cf-ui').style.zIndex = 2147483001
+          window.Codefall.boot(readOptions())
+          render()
+        }
+
+        function simulate(mode) {
+          if (simTimer) clearTimeout(simTimer)
+          if (mode === 'fail') {
+            simTimer = setTimeout(function () {
+              if (window.__codefallController) window.__codefallController.fail('simulated')
+            }, 1500)
+          } else {
+            simTimer = setTimeout(function () {
+              if (window.__codefallController) window.__codefallController.ready()
+            }, Number(mode))
+          }
+        }
+
+        document.getElementById('btn-replay').onclick = start
+        document.getElementById('btn-ready').onclick = function () {
+          if (window.__codefallController) window.__codefallController.ready()
+        }
+        document.getElementById('btn-interact').onclick = function () {
+          if (window.__codefallController) window.__codefallController.interact('preview')
+        }
+        document.getElementById('btn-skip').onclick = function () {
+          if (window.__codefallController) window.__codefallController.skip()
+        }
+        document.getElementById('btn-fail').onclick = function () {
+          if (window.__codefallController) window.__codefallController.fail('manual')
+        }
+        Array.prototype.forEach.call(document.querySelectorAll('[data-sim]'), function (b) {
+          b.onclick = function () {
+            start()
+            simulate(b.getAttribute('data-sim'))
+          }
+        })
+
+        // Live options apply to the running animation.
+        ;['opt-density', 'opt-speed', 'opt-title'].forEach(function (id) {
+          document.getElementById(id).addEventListener('change', function () {
+            var c = window.__codefallController
+            if (!c) return
+            var o = readOptions()
+            window.__codefallRendererOptions = o
+            var r = document.getElementById('cf-state')
+            r.textContent = '参数已修改：切到「重播」生效（避免中途重建网格）'
+          })
+        })
+
+        // Keep the readout fresh.
+        setInterval(render, 250)
+
+        // Play once on load, as the real boot would.
+        start()
+      })()
+    </script>
+  </body>
+</html>

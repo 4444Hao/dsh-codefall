@@ -1,0 +1,41 @@
+name: tests
+
+# The host and client suites need nothing at all; the smoke suite needs the
+# optional canvas backend, which is a devDependency with prebuilt binaries.
+#
+# The theme GENERATOR cannot run here: it reads assets out of the DeepSeek
+# Harness installation (tools/extract-app-assets.mjs). What CI does check is that
+# the shipped source table still reproduces the committed golden fixture
+# (tools/fixtures/green-145.json) byte for byte — that assertion lives in
+# tools/client-test.mjs.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # smoke.mjs measures glyph metrics, so a monospace font must be present.
+      - name: Install a monospace font
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-dejavu-core
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Host half (injection, settings route, dismiss policy)
+        run: node tools/host-test.mjs
+
+      - name: Client half (slots, settings UI, theme layer, service guard)
+        run: node tools/client-test.mjs
+
+      - name: Renderer (pixels, teardown, live retune)
+        run: node tools/smoke.mjs

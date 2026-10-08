@@ -1,0 +1,75 @@
+{
+  "name": "dsh-codefall",
+  "version": "0.1.0",
+  "private": true,
+  "description": "dsh-codefall — green digital-rain boot animation plus a green semantic theme for the DeepSeek Harness client.",
+  "license": "MIT",
+  "author": "4444Hao",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4444Hao/dsh-codefall.git"
+  },
+  "homepage": "https://github.com/4444Hao/dsh-codefall#readme",
+  "bugs": {
+    "url": "https://github.com/4444Hao/dsh-codefall/issues"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "docs",
+    "LICENSE"
+  ],
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "boot",
+    "startup-animation",
+    "digital-rain",
+    "theme"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node tools/host-test.mjs && node tools/client-test.mjs && node tools/smoke.mjs",
+    "test:fast": "node tools/host-test.mjs && node tools/client-test.mjs",
+    "check": "node --check lib/renderer.js && node --check lib/boot.js && node --check lib/client.js && node --check lib/index.js",
+    "frames": "node tools/render-frames.mjs",
+    "docs:images": "node tools/make-docs-images.mjs",
+    "theme": "node tools/extract-app-assets.mjs && node tools/extract-theme-css.mjs && node tools/green-map.mjs --emit"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^0.1.80"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-theme",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    },
+    "engines": {
+      "dsh": ">=0.2.0-rc.1"
+    }
+  }
+}
