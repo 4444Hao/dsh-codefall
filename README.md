@@ -1,41 +1,23 @@
-# dsh-codefall
+# dsh-codefall【数字雨】开机动画 + 绿色语义主题。
 
-绿色数字雨开机动画 + 绿色语义主题，给 [DeepSeek Harness](https://github.com/deepseek-ai)。
-
+ 
 [![tests](https://github.com/4444Hao/dsh-codefall/actions/workflows/test.yml/badge.svg)](https://github.com/4444Hao/dsh-codefall/actions/workflows/test.yml)
-　MIT 许可　**零运行时依赖**　192 项离线测试
 
 ![开机动画：绿色数字雨](docs/images/boot-dark.gif)
 
 ## 快速开始
 
 ```bash
-dsh plugin --profile desktop add github:4444Hao/dsh-codefall   # 安装（约 8 秒，自动登记 bundle）
+dsh plugin --profile desktop add github:4444Hao/dsh-codefall   
+# 安装（约 8 秒，自动登记 bundle）
 # 然后重启应用
+# 初次使用时，开机动画会默认直到你移动鼠标/点击/滚轮/按键结束
 ```
 
-需要 Harness **0.2.0-rc.2 或更高**。插件本身零依赖，`react` 由宿主提供。想装在 Web 界面就把 `--profile desktop` 换成 `--profile web`。
-
-装完开机就是这个动画，界面里的蓝色系品牌色变成与雨相配的绿色。
-
-## 它做什么
-
-| | |
-|---|---|
-| **开机动画** | 冷启动时铺满一屏绿色数字雨。默认**只有雨**——无标题、无文字、无假进度条。宿主就绪后雨继续下，直到你移动鼠标/点击/滚轮/按键（或改成 3 秒后自动继续）。**结束即零负载**。 |
-| **绿色主题** | 蓝色系品牌色换成绿色：按钮、链接、选中态、气泡、图标全跟随。**保留原本的白字黑底**；成功/警告/危险等语义色一律不动。 |
-| **设置** | 设置里有一栏 **开机动画codefall**：主题与色相**改完即时生效**，动画参数下次启动生效。 |
-
-浅色模式是"墨迹雨"（白底深绿），不是把深色的雨调亮：
-
+浅色模式是"墨迹雨"（白底深绿）：
 ![浅色模式下的墨迹雨](docs/images/boot-light.png)
 
-
-卸载：`dsh plugin --profile desktop remove dsh-codefall`。主题层会随插件一起移除。
-
-## 设置
-
-设置 → **开机动画codefall**：
+## 设置 → **开机动画codefall**：
 
 | 项 | 取值 | 默认 | 生效 |
 |---|---|---|---|
@@ -47,25 +29,15 @@ dsh plugin --profile desktop add github:4444Hao/dsh-codefall   # 安装（约 8 
 | **绿色主题** | 开 / 关 | **开** | **立即** |
 | **绿色色调** | 110–175° + 三个预设 | **雨绿 145°** | **立即**（拖动即变） |
 
-> 首帧必须在任何客户端代码运行前就正确，所以动画参数由宿主注入时快照；绿色主题是客户端运行时注册的覆盖层，因此是即时的。
+卸载：`dsh plugin --profile desktop remove dsh-codefall`。主题层会随插件一起移除。
 
-更细的参数（标题文字、状态行、闲置降档、超时）在 `$DSH_HOME/codefall.json`，也可用同一个路由读写。
 
-## 绿色主题
-
-界面配色是三层 token 体系，插件只覆盖 **29 个蓝色原始色阶**，所有指向它们的别名（包括 `color-mix()` 计算式）自动跟随。规则只有一条：**保留明度，换掉色相**——保明度才能换皮而不改可读性。
-
-![同一组源色在三个色相下的结果](docs/images/theme-hues.png)
-
-预设：**雨绿 145°**（默认，即数字雨自己的绿）/ **经典 120°** / **青碧 165°**。
-
-原理、为什么收饱和度、以及一个"按色相看是蓝但其实是白字黑底"的坑，见 [`docs/DESIGN.md` §4.4.1](docs/DESIGN.md)。
-
-## 已知局限
+## 注意
 
 1. **桌面端改动画参数需重启**（绿色主题与色相除外，即时生效）。
 2.  **只在 Windows 桌面端人工验证过**。macOS / Linux 的代码路径是安全的（标题栏部分是 Windows 专属，找不到探针时完全空操作），但没实机验证。
-
+3. 需要 Harness **0.2.0-rc.2 或更高**。插件本身零依赖，`react` 由宿主提供。
+4. 想装在 Web 界面就把 `--profile desktop` 换成 `--profile web`。
 
 ## 许可证
 
