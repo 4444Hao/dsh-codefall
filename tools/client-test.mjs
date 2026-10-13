@@ -337,9 +337,9 @@ function makeClientCtx(options = {}) {
     text.trim()
   )
   const buttons = buttonsOf(loaded)
-  check('four segmented groups plus the hue stops (13 buttons)', buttons.length === 13, `buttons=${buttons.length}`)
+  check('six segmented groups plus the hue stops (17 buttons)', buttons.length === 17, `buttons=${buttons.length}`)
   const active = buttons.filter((b) => b['aria-pressed'] === true).map((b) => b.children.join(''))
-  check('exactly one option is active per group', active.length === 5, active.join(' | '))
+  check('exactly one option is active per group', active.length === 7, active.join(' | '))
   check(
     'the stored values are the active ones',
     active.includes('3 秒后自动继续') &&
@@ -363,7 +363,7 @@ function makeClientCtx(options = {}) {
 
   // Clicking a dismissal choice writes both underlying keys, immediately.
   calls.length = 0
-  buttons[0].onClick()
+  buttons.find((b) => b.children.join('') === '交互后结束').onClick()
   await settle()
   const post = calls.find((c) => c.init.method === 'POST')
   check('choosing posts to the plugin route', !!post && post.url === '/codefall/api', post ? post.url : 'no POST')
@@ -374,6 +374,18 @@ function makeClientCtx(options = {}) {
     JSON.stringify(body)
   )
   check('the value is refreshed from the response', React.stateAt(0).dismiss === 'interaction', JSON.stringify(React.stateAt(0)))
+
+  const configured = []
+  sandbox.__codefallSession = { configure: (next) => configured.push(next) }
+  for (const [label, key, value] of [['每次打开窗口', 'playback', 'every-open'], ['淡出', 'transition', 'fade']]) {
+    calls.length = 0
+    buttons.find((b) => b.children.join('') === label).onClick()
+    await settle()
+    const saved = calls.find((c) => c.init.method === 'POST')
+    check(label + ' persists its own option', saved && JSON.parse(saved.init.body).patch[key] === value)
+    check(label + ' immediately configures the desktop session', configured.at(-1)?.[key] === value)
+  }
+  delete sandbox.__codefallSession
 
   // A quality choice writes exactly one key.
   calls.length = 0
@@ -532,8 +544,8 @@ function makeClientCtx(options = {}) {
   check('the client reports the layer as removed', sandbox.__codefallClient.state().themeApplied === false)
 
   // The plugin's own disposal removes the layer.
-  check('a disposer was registered through ctx.effect', disposers.length === 1, `disposers=${disposers.length}`)
-  disposers[0].d()
+  check('theme and playback disposers were registered', disposers.length === 2, `disposers=${disposers.length}`)
+  disposers.find((d) => /green theme/.test(d.label)).d()
   check('unloading the plugin removes the layer', installed[installed.length - 1].disposed === true)
 }
 {

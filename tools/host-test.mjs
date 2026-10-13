@@ -113,7 +113,7 @@ check('registered the settings route', routes.length === 1 && routes[0].path ===
  * 3. the emitted index rows
  * ------------------------------------------------------------------ */
 const cache = internals.createCache()
-const options = internals.normalize({ ...internals.DEFAULTS, appearance: 'auto' })
+const options = internals.normalize({ ...internals.DEFAULTS, transition: 'fade', appearance: 'auto' })
 const script = host.buildScript(options, cache)
 check('buildScript produced code', script.length > 20000, `${script.length} bytes`)
 check('script carries the renderer', script.includes('CodefallRenderer'))
@@ -241,7 +241,7 @@ function makeSandbox({ darkTheme, themeSource, systemDark = false, reducedMotion
       addEventListener(t, fn) {
         ;(listeners[t] = listeners[t] || []).push(fn)
       },
-      removeEventListener() {},
+      removeEventListener(t, fn) { listeners[t] = (listeners[t] || []).filter((f) => f !== fn) },
       querySelectorAll: () => [],
       getContext: () => makeFake2d()
     }
@@ -262,7 +262,7 @@ function makeSandbox({ darkTheme, themeSource, systemDark = false, reducedMotion
     addEventListener(t, fn) {
       ;(listeners[t] = listeners[t] || []).push(fn)
     },
-    removeEventListener() {}
+    removeEventListener(t, fn) { listeners[t] = (listeners[t] || []).filter((f) => f !== fn) }
   }
 
   const sandbox = {
@@ -281,7 +281,7 @@ function makeSandbox({ darkTheme, themeSource, systemDark = false, reducedMotion
     addEventListener(t, fn) {
       ;(listeners[t] = listeners[t] || []).push(fn)
     },
-    removeEventListener() {},
+    removeEventListener(t, fn) { listeners[t] = (listeners[t] || []).filter((f) => f !== fn) },
     matchMedia: (query) => {
       if (query.includes('prefers-reduced-motion')) return { matches: !!reducedMotion }
       if (query.includes('prefers-color-scheme: dark')) return { matches: !!systemDark }
@@ -369,16 +369,17 @@ function makeSandbox({ darkTheme, themeSource, systemDark = false, reducedMotion
       }
     },
     hasPendingRaf: () => !!pendingRaf,
+    listenerCount: (t) => (listeners[t] || []).length,
     /** Dispatch a DOM event to the listeners the overlay registered. */
     fire(type, event) {
-      for (const fn of listeners[type] || []) fn({ ...event, type })
+      for (const fn of (listeners[type] || []).slice()) fn({ ...event, type })
     }
   }
 }
 
 /* --- dark + the new dismissal contract ---------------------------------- */
 const scriptReadyDismiss = host.buildScript({ ...internals.DEFAULTS, dismiss: 'ready' }, cache)
-const scriptIdle = host.buildScript({ ...internals.DEFAULTS, idleSlowMs: 600, idleStaticMs: 1200 }, cache)
+const scriptIdle = host.buildScript({ ...internals.DEFAULTS, transition: 'fade', idleSlowMs: 600, idleStaticMs: 1200 }, cache)
 function bootInto(env, code) {
   vm.createContext(env.sandbox)
   new vm.Script(code).runInContext(env.sandbox)
@@ -797,6 +798,122 @@ const handler = internals.createSettingsHandler(internals.createCache())
   const res = fakeRes()
   await handler(fakeReq({ method: 'DELETE' }), res)
   check('unsupported methods are refused', res.out.code === 405, `code=${res.out.code}`)
+}
+
+/* --- rectangular portal and desktop restoration ----------------------- */
+const portalScript = host.buildScript({ ...internals.DEFAULTS, transition: 'portal', readyHeuristic: false }, cache)
+{
+  const normalized = internals.normalize({ playback: 'always', transition: 'zoom' })
+  check('unknown playback/transition fall back safely', normalized.playback === 'startup' && normalized.transition === 'portal')
+  const env = makeSandbox({ darkTheme: true })
+  const ctl = bootInto(env, portalScript)
+  ctl.ready()
+  let prevented = false, stopped = false
+  env.fire('keydown', { key: 'Enter', preventDefault() { prevented = true }, stopImmediatePropagation() { stopped = true } })
+  check('the entry key cannot reach the focused composer', prevented && stopped)
+  check('interaction retains the minimum display floor', ctl.state().phase === 'playing')
+  env.advance(920)
+  check('ready plus interaction opens the portal', ctl.state().phase === 'portal')
+  const wrap = env.body.children.find((e) => e.id === 'codefall-boot')
+  const canvas = wrap.children.find((e) => e.tagName === 'canvas')
+  const ring = wrap.children.find((e) => e.children.length === 2)
+  const firstWidth = parseFloat(ring.style.width)
+  check('the opening starts as a tall thin rectangle', firstWidth < 10 && parseFloat(ring.style.height) > 500)
+  check('only the canvas is clipped, the input shield remains', canvas.style.clipPath.startsWith('polygon(evenodd,') && wrap.style.background === 'transparent' && wrap.style.pointerEvents !== 'none')
+  env.advance(350)
+  check('the rectangle expands to both sides', parseFloat(ring.style.width) > firstWidth && parseFloat(ring.style.left) < 640)
+  check('portal geometry stays finite', !/NaN|Infinity/.test(canvas.style.clipPath))
+  env.advance(450)
+  check('the portal hands off within 800 ms', !env.sandbox.__codefallController && env.body.children.length === 0)
+  check('portal teardown preserves the host root', env.root.style.visibility !== 'hidden' && env.root.style.opacity !== '0')
+  check('only the session visibility listener survives', env.listenerCount('visibilitychange') === 1 && env.listenerCount('keydown') === 0 && !env.hasPendingRaf())
+}
+{
+  const env = makeSandbox({ darkTheme: true, reducedMotion: true })
+  const ctl = bootInto(env, portalScript)
+  ctl.ready(); env.advance(1000); ctl.interact('reduced')
+  check('reduced motion bypasses the portal', ctl.state().phase !== 'portal')
+  settle(env)
+  check('reduced motion still removes the overlay', !env.sandbox.__codefallController)
+}
+{
+  const env = makeSandbox({ darkTheme: true })
+  const ctl = bootInto(env, portalScript)
+  ctl.ready(); env.advance(1000); ctl.interact('stalled')
+  env.tick(1100); env.runDueTimers()
+  check('a stalled portal has an independent teardown backstop', !env.sandbox.__codefallController)
+}
+{
+  const env = makeSandbox({ darkTheme: true })
+  const ctl = bootInto(env, portalScript)
+  ctl.ready(); env.advance(1000); ctl.interact('failure'); ctl.fail('host-error')
+  check('a host error immediately interrupts the portal', ctl.state().phase === 'closing')
+  settle(env)
+  check('a failed portal never traps the UI', !env.sandbox.__codefallController)
+}
+function visibility(env, hidden) {
+  env.sandbox.document.hidden = hidden
+  env.fire('visibilitychange', {})
+}
+{
+  const env = makeSandbox({ darkTheme: true })
+  env.sandbox.location = { protocol: 'dsh-app:' }
+  const first = bootInto(env, portalScript)
+  const session = env.sandbox.__codefallSession
+  session.ready(); first.destroy()
+  visibility(env, true); visibility(env, false)
+  check('startup-only does not replay on window restore', !env.sandbox.__codefallController)
+  session.configure({ playback: 'every-open', density: 0.5 })
+  env.fire('focus', {})
+  check('ordinary focus changes do not start an animation', !env.sandbox.__codefallController)
+  visibility(env, true); visibility(env, false)
+  const second = env.sandbox.__codefallController
+  check('every-open creates a ready new scene', second && second !== first && second.state().hostReady && second.state().density === 0.5)
+  visibility(env, false)
+  check('duplicate visible events do not stack animations', env.sandbox.__codefallController === second && env.body.children.length === 1)
+  env.fire('mousemove', { clientX: 100, clientY: 100 })
+  check('restoration rearms the accidental mousemove guard', !second.state().interacted)
+  visibility(env, true)
+  check('hiding the window discards its pending animation', !env.sandbox.__codefallController)
+  visibility(env, false)
+  const third = env.sandbox.__codefallController
+  check('the next restore starts afresh', third && third !== second)
+  third.destroy()
+  const create = env.sandbox.CodefallRenderer.create
+  env.sandbox.CodefallRenderer.create = () => { throw new Error('context unavailable') }
+  visibility(env, true); visibility(env, false)
+  check('a renderer creation failure leaves no orphan shield', env.body.children.length === 0 && !env.sandbox.__codefallController)
+  env.sandbox.CodefallRenderer.create = create
+  visibility(env, true); visibility(env, false)
+  check('a later restore recovers after renderer failure', !!env.sandbox.__codefallController)
+  env.sandbox.__codefallController.destroy()
+  session.configure({ playback: 'startup', transition: 'fade' }); third.destroy()
+  visibility(env, true); visibility(env, false)
+  check('switching back to startup takes effect immediately', !env.sandbox.__codefallController)
+  session.configure({ playback: 'every-open', animation: false })
+  visibility(env, true); visibility(env, false)
+  check('animation:false also prevents restoration replay', !env.sandbox.__codefallController)
+  session.destroy()
+  check('unloading removes the persistent listener', env.listenerCount('visibilitychange') === 0 && !env.sandbox.__codefallSession)
+  visibility(env, true); visibility(env, false)
+  check('unloaded sessions cannot replay', !env.sandbox.__codefallController)
+}
+{
+  const env = makeSandbox({ darkTheme: true })
+  env.sandbox.location = { protocol: 'https:' }
+  const ctl = bootInto(env, portalScript)
+  const session = env.sandbox.__codefallSession
+  session.configure({ playback: 'every-open' }); session.ready(); ctl.destroy()
+  visibility(env, true); visibility(env, false)
+  check('web tab switching does not replay a desktop splash', !env.sandbox.__codefallController)
+}
+{
+  const env = makeSandbox({ darkTheme: true })
+  env.sandbox.location = { protocol: 'dsh-app:' }
+  const ctl = bootInto(env, portalScript)
+  env.sandbox.__codefallSession.configure({ playback: 'every-open' }); ctl.destroy()
+  visibility(env, true); visibility(env, false)
+  check('restoration cannot claim readiness before the client mounts', !env.sandbox.__codefallController)
 }
 
 rmSync(HOME, { recursive: true, force: true })

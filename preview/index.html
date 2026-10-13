@@ -3,21 +3,21 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>dsh-codefall · 离线原型（阶段 A）</title>
+    <title>dsh-codefall · 数字雨与矩阵光门预览</title>
     <!--
-      Stage A harness. This page is NOT part of the shipped plugin: it exists so
+      Offline harness. This page is NOT part of the shipped plugin: it exists so
       the boot animation and its hand-off can be judged offline, before anything
       is wired into the harness.
 
       What it proves, in order:
         1. the first frame is already a full rain scene (no empty screen),
         2. the title converges instead of typing out,
-        3. ready() drains the trails and hands off inside the time budget,
+        3. readiness plus interaction reveals the host through a rectangular portal,
         4. skip / failure / reduced-motion never trap the user.
     -->
     <style>
       :root {
-        --accent: #4176e6; /* the official blue, for before/after comparison */
+        --accent: #41e686; /* default green theme, matching the runtime token map */
         --bg: #151517;
         --panel: #1c1c1f;
         --line: #2a2a2f;
@@ -189,9 +189,9 @@
         <p>
           这是一个<strong>离线原型</strong>：灰色侧栏与这段文字只是模仿宿主界面，
           用来判断开机动画的交接是否干净。
-          <a href="#">这里是一个蓝色链接</a>，将来会被主题覆盖成绿色。
+          <a href="#">这里是绿色主题链接</a>，预览默认雨绿色调。
         </p>
-        <div class="composer">输入消息…（点一下可以看到蓝色焦点环）</div>
+        <div class="composer">输入消息…（光门展开后露出宿主界面）</div>
         <p class="hint">
           覆盖层播放时：点击任意处或按 Esc 跳过。右下角面板在覆盖层之上，不会被跳过手势吃掉。
         </p>
@@ -199,7 +199,7 @@
     </div>
 
     <div id="cf-ui">
-      <h3>dsh-codefall · 阶段 A 原型</h3>
+      <h3>dsh-codefall · 转场预览</h3>
       <div class="grid">
         <button class="pri" id="btn-replay">重播</button>
         <button id="btn-ready">就绪</button>
@@ -222,6 +222,7 @@
       <label>标题 <input type="text" id="opt-title" value="" placeholder="留空 = 纯净数字雨" /></label>
       <label>提示文案 <input type="text" id="opt-hint" value="" placeholder="留空 = 不显示文字" /></label>
       <label>结束方式 <select id="opt-dismiss"><option value="interaction">交互才结束</option><option value="ready">3 秒后继续</option></select></label>
+      <label>退出转场 <select id="opt-transition"><option value="portal">矩阵光门</option><option value="fade">淡出</option></select></label>
       <label>弱动画 <input type="checkbox" id="opt-reduced" /></label>
       <pre id="cf-state">尚未播放</pre>
       <div class="hint">
@@ -240,6 +241,7 @@
 
         function readOptions() {
           return {
+            transition: document.getElementById('opt-transition').value,
             appearance: document.getElementById('opt-appearance').value,
             quality: document.getElementById('opt-quality').value,
             density: Number(document.getElementById('opt-density').value),
