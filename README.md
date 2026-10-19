@@ -1,5 +1,7 @@
 # dsh-codefall
 
+**简体中文** | [English](README.en.md)
+
 为 DeepSeek Harness 添加黑客帝国风格的数字雨开屏、向两侧展开的矩形光门，以及可调色相的绿色界面主题。
 
 Matrix-inspired digital rain, a light portal that opens to both sides, and an adjustable green UI theme for DeepSeek Harness.
@@ -115,7 +117,7 @@ dsh plugin --profile web add "D:\下载\dsh-codefall-0.2.0.tgz"
 
 光门实现、窗口恢复逻辑与验收记录见[矩阵光门与窗口恢复播放](docs/PORTAL.md)。打开本地 `preview/index.html`，先点“就绪”，再点“交互”观察光门；该页面为离线演示，不是实际 Harness 窗口。
 
-市场展示图由根目录的 [screenshots.json](screenshots.json) 指定，顺序为**深色数字雨动图 → Windows 设置截图 → 浅色数字雨**。更新图片或顺序后，推送到自己的 GitHub 默认分支即可；目录下一次夜间构建会采集，无需重新投稿或仅为截图更新发布 npm 包。
+市场展示图由根目录的 [screenshots.json](screenshots.json) 指定，顺序为**深色数字雨动图 → Windows 设置截图 → 浅色数字雨**。更新图片或顺序后，推送到自己的 GitHub 默认分支即可；目录下一次截图采集与部署完成后生效，不会即时刷新；无需重新投稿或仅为截图更新发布 npm 包。
 
 ## 许可证
 
