@@ -11,7 +11,7 @@ Matrix-inspired digital rain, a rectangular light portal that opens to both side
 
 [Install and use](#install-and-use) · [Settings](#settings) · [GitHub](https://github.com/4444Hao/dsh-codefall) · [npm](https://www.npmjs.com/package/dsh-codefall)
 
-![Digital waterfall effect preview: looping green Matrix rain on a black background](docs/images/boot-dark.gif)
+![Digital waterfall effect preview: looping green Matrix rain on a black background](docs/images/boot-waterfall-v2.gif)
 
 *Generated with the plugin's renderer. This GIF demonstrates the rain; it does not show the portal transition.*
 

@@ -68,9 +68,13 @@ const scene = R.create(canvas, { createCanvas, fontFamily: MONO, appearance: 'da
 scene.resize(WIDTH, HEIGHT, 1)
 
 const step = 1000 / FPS
+// A thumbnail service may keep only the first frame. Record an established
+// rain field so even that static cover shows the effect rather than its buildup.
+const PRE_ROLL_MS = 1500
+for (let t = 0; t < PRE_ROLL_MS; t += step) scene.frameAt(t)
 const frames = []
 for (let i = 0; i < FRAMES; i++) {
-  scene.frameAt(i * step)
+  scene.frameAt(PRE_ROLL_MS + i * step)
   // Copy out: the canvas is reused for the next frame.
   frames.push(ctx.getImageData(0, 0, WIDTH, HEIGHT).data.slice())
 }
@@ -127,10 +131,10 @@ encoder.finish()
 
 mkdirSync(OUT, { recursive: true })
 const bytes = encoder.bytes()
-const file = join(OUT, 'boot-dark.gif')
+const file = join(OUT, 'boot-waterfall-v2.gif')
 writeFileSync(file, bytes)
 
 const kb = (bytes.length / 1024).toFixed(0)
-console.log(`boot-dark.gif   ${WIDTH}x${HEIGHT}  ${FRAMES} frames @ ${FPS}fps  ${COLORS} colours`)
+console.log(`boot-waterfall-v2.gif   ${WIDTH}x${HEIGHT}  ${FRAMES} frames @ ${FPS}fps  ${COLORS} colours`)
 console.log(`  ${bytes.length} bytes (${kb} KB)`)
 console.log(`  budget check: ${bytes.length < 1_500_000 ? 'under 1.5 MB' : 'OVER 1.5 MB — lower --frames/--width/--colors'}`)

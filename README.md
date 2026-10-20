@@ -13,7 +13,7 @@ Matrix-inspired digital rain, a light portal that opens to both sides, and an ad
 
 [安装与使用](#安装与使用) · [设置](#设置) · [GitHub](https://github.com/4444Hao/dsh-codefall) · [npm](https://www.npmjs.com/package/dsh-codefall)
 
-![数字瀑布效果预览：黑底绿色数字雨循环动图](docs/images/boot-dark.gif)
+![数字瀑布效果预览：黑底绿色数字雨循环动图](docs/images/boot-waterfall-v2.gif)
 
 *数字雨由插件自带渲染器生成；此动图展示雨场，不包含光门转场。*
 
