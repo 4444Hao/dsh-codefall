@@ -11,7 +11,7 @@ Matrix-inspired digital rain, a rectangular light portal that opens to both side
 
 [Install and use](#install-and-use) · [Settings](#settings) · [GitHub](https://github.com/4444Hao/dsh-codefall) · [npm](https://www.npmjs.com/package/dsh-codefall)
 
-![Dark startup animation: green digital rain on a black background](docs/images/boot-dark.gif)
+![Digital waterfall effect preview: looping green Matrix rain on a black background](docs/images/boot-dark.gif)
 
 *Generated with the plugin's renderer. This GIF demonstrates the rain; it does not show the portal transition.*
 
@@ -68,11 +68,11 @@ dsh plugin --profile web add "D:\Downloads\dsh-codefall-0.2.0.tgz"
 
 ## Settings
 
-Open the plugin's **“开机动画 codefall”** settings page. Its location depends on your Harness or desktop app version. The screenshot below shows the current Chinese settings UI; the English labels in the table explain the options.
+Open the plugin's **“开机动画 codefall”** settings page. Its location depends on your Harness or desktop app version. The linked screenshot shows the current Chinese settings UI; the English labels in the table explain the options.
 
-![Windows desktop settings for playback, dismissal, transition, rain rendering, and the green UI theme](docs/images/settings-desktop.png)
+[View the Windows desktop settings screenshot](docs/images/settings-desktop.png).
 
-*Actual Windows settings screenshot. It shows replay on window reopen, interaction dismissal, the Matrix portal, 90% density, ×1.20 speed, and Classic green at 120°. These are example settings, not the defaults.*
+It shows replay on window reopen, interaction dismissal, the Matrix portal, 90% density, ×1.20 speed, and Classic green at 120°. These are example settings, not the defaults.
 
 | Setting | Options | Default |
 | --- | --- | --- |
@@ -90,14 +90,12 @@ Saved playback and transition changes apply to subsequent playback without anoth
 
 ### Light digital rain
 
-![Light digital rain: dark green characters on a white background](docs/images/boot-light.png)
-
-*The same renderer supports both appearances. Follow the host theme or choose an appearance in settings.*
+[View light digital rain](docs/images/boot-light.png): dark green characters on a white background. The same renderer supports both appearances. Follow the host theme or choose an appearance in settings.
 
 <details>
 <summary>Green hue examples</summary>
 
-![Accent color mapping: source blue, Classic green at 120°, Rain green at 145°, and Teal at 165°](docs/images/theme-hues.png)
+[View the green hue comparison](docs/images/theme-hues.png): source blue, Classic green at 120°, Rain green at 145°, and Teal at 165°.
 
 This is a color-mapping diagram, not a full application screenshot. The hue control changes the UI theme; it does not recolor the rain characters.
 
@@ -107,7 +105,7 @@ This is a color-mapping diagram, not a full application screenshot. The hue cont
 
 - Harness **0.2.0-rc.2 or newer** is recommended. Fully quit and restart after installing or updating the plugin.
 - Replay on window restore depends on desktop visibility events. The current implementation targets desktop pages using the `dsh-app:` protocol; other desktop wrappers need separate verification.
-- The Windows settings screenshot is shown above. The portal has been checked in a browser preview and offline tests. Real tray/minimize restore still needs the [manual acceptance checks](docs/PORTAL.md#实机验收), documented in Chinese. macOS and Linux have not been tested on actual devices; a fully covered window may also produce visibility events on macOS.
+- The Windows settings screenshot is linked above. The portal has been checked in a browser preview and offline tests. Real tray/minimize restore still needs the [manual acceptance checks](docs/PORTAL.md#实机验收), documented in Chinese. macOS and Linux have not been tested on actual devices; a fully covered window may also produce visibility events on macOS.
 - Host versions and third-party plugins can define their own colors. Green-theme coverage depends on whether they use the host's theme variables.
 - Disable or uninstall the plugin in the app's plugin manager to remove its theme layer. For CLI-managed environments, use `dsh plugin --profile web remove dsh-codefall`, replacing the profile as needed.
 
@@ -115,7 +113,9 @@ This is a color-mapping diagram, not a full application screenshot. The hue cont
 
 See [Matrix portal and window-restore playback](docs/PORTAL.md) for implementation details and acceptance records, in Chinese. Open `preview/index.html` locally, select “就绪” (Ready), then “交互” (Interact) to preview the portal. This is an offline demonstration rather than an actual Harness window.
 
-The root [screenshots.json](screenshots.json) controls the market gallery: **dark digital-rain GIF → Windows settings screenshot → light digital rain**. Push image or ordering changes to your own GitHub default branch. The market picks them up after a subsequent screenshot collection and deployment; this is not an immediate refresh. Screenshot-only changes do not require another catalog PR or a new npm release.
+The root [screenshots.json](screenshots.json) declares **only the green digital-waterfall GIF on a black background** as the market preview. Both READMEs also embed only this effect GIF. Settings, light-mode, and hue illustrations remain available through text links so automatic README extraction does not mistake them for cover images.
+
+Push changes to your own GitHub default branch, wait for a subsequent screenshot collection and deployment, then reopen the market to fetch the new catalog. This is not an immediate refresh. Presentation-only changes do not require another catalog PR or a new npm release. Whether the card preserves GIF animation depends on the market's image processing; if it shows a static frame, open the preview to view the original GIF.
 
 ## License
 

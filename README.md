@@ -13,7 +13,7 @@ Matrix-inspired digital rain, a light portal that opens to both sides, and an ad
 
 [安装与使用](#安装与使用) · [设置](#设置) · [GitHub](https://github.com/4444Hao/dsh-codefall) · [npm](https://www.npmjs.com/package/dsh-codefall)
 
-![深色数字雨开屏：绿色字符在黑色背景上流动](docs/images/boot-dark.gif)
+![数字瀑布效果预览：黑底绿色数字雨循环动图](docs/images/boot-dark.gif)
 
 *数字雨由插件自带渲染器生成；此动图展示雨场，不包含光门转场。*
 
@@ -72,9 +72,9 @@ dsh plugin --profile web add "D:\下载\dsh-codefall-0.2.0.tgz"
 
 打开插件的 **“开机动画 codefall”** 设置页。入口位置随 Harness 或桌面端版本而异。
 
-![Windows 桌面端设置：播放时机、结束方式、光门转场、雨场参数与绿色主题](docs/images/settings-desktop.png)
+[查看 Windows 桌面端设置截图](docs/images/settings-desktop.png)
 
-*上图为 Windows 桌面端的真实设置截图，采用“每次打开窗口 / 交互后结束 / 矩阵光门”、雨密度 90%、雨速 ×1.20、经典绿 120°，不代表默认参数。*
+该截图采用“每次打开窗口 / 交互后结束 / 矩阵光门”、雨密度 90%、雨速 ×1.20、经典绿 120°，不代表默认参数。
 
 | 设置 | 可选项 | 默认值 |
 | --- | --- | --- |
@@ -92,14 +92,12 @@ dsh plugin --profile web add "D:\下载\dsh-codefall-0.2.0.tgz"
 
 ### 浅色数字雨
 
-![浅色数字雨：白色背景上流动的深绿色字符](docs/images/boot-light.png)
-
-*与深色雨场采用同一渲染器，跟随宿主明暗或在设置中单独选择。*
+[查看浅色数字雨效果](docs/images/boot-light.png)：白底深绿的“墨迹雨”，与深色雨场采用同一渲染器，可跟随宿主明暗或在设置中单独选择。
 
 <details>
 <summary>绿色色相示意</summary>
 
-![界面强调色映射：原蓝色与经典绿 120°、雨绿 145°、青碧 165°的色板对照](docs/images/theme-hues.png)
+[查看绿色色相对照图](docs/images/theme-hues.png)：原蓝色与经典绿 120°、雨绿 145°、青碧 165°的映射。
 
 此图是色彩映射示意，不是完整应用截图。色相设置作用于界面主题，并不表示数字雨字符同步变色。
 
@@ -109,7 +107,7 @@ dsh plugin --profile web add "D:\下载\dsh-codefall-0.2.0.tgz"
 
 - 建议使用 Harness **0.2.0-rc.2 或更高版本**。安装或更新插件后，请完整退出并重启应用。
 - 窗口恢复重播依赖桌面环境的可见性事件；当前实现针对 `dsh-app:` 桌面页面，其他桌面壳需单独验证。
-- Windows 设置截图如上。光门已通过浏览器预览及离线测试；真实托盘 / 最小化恢复仍需按[实机验收步骤](docs/PORTAL.md#实机验收)验证。macOS / Linux 尚未实机验证，macOS 完全遮挡窗口也可能产生可见性事件。
+- Windows 设置截图见上文链接。光门已通过浏览器预览及离线测试；真实托盘 / 最小化恢复仍需按[实机验收步骤](docs/PORTAL.md#实机验收)验证。macOS / Linux 尚未实机验证，macOS 完全遮挡窗口也可能产生可见性事件。
 - 不同宿主版本及第三方插件可能使用自己的配色；绿色主题的覆盖范围取决于它们是否采用宿主主题变量。
 - 在应用的插件管理中停用或卸载即可移除主题层。CLI 管理环境可运行 `dsh plugin --profile web remove dsh-codefall`，profile 按实际环境调整。
 
@@ -117,7 +115,9 @@ dsh plugin --profile web add "D:\下载\dsh-codefall-0.2.0.tgz"
 
 光门实现、窗口恢复逻辑与验收记录见[矩阵光门与窗口恢复播放](docs/PORTAL.md)。打开本地 `preview/index.html`，先点“就绪”，再点“交互”观察光门；该页面为离线演示，不是实际 Harness 窗口。
 
-市场展示图由根目录的 [screenshots.json](screenshots.json) 指定，顺序为**深色数字雨动图 → Windows 设置截图 → 浅色数字雨**。更新图片或顺序后，推送到自己的 GitHub 默认分支即可；目录下一次截图采集与部署完成后生效，不会即时刷新；无需重新投稿或仅为截图更新发布 npm 包。
+市场预览由根目录的 [screenshots.json](screenshots.json) 指定，**仅保留黑底绿色数字瀑布 GIF**。中英文 README 也只内嵌这张效果动图，设置截图、浅色效果和色相对照通过文字链接查看，避免自动取图时把说明图片选为封面。
+
+更新后推送到自己的 GitHub 默认分支，等待目录下一次截图采集与部署，再重新打开市场获取新目录；不会即时刷新，无需重新投稿或仅为展示更新发布 npm 包。卡片是否保留 GIF 动画由市场的图片处理决定；若卡片显示静态帧，可点击预览查看原动图。
 
 ## 许可证
 
