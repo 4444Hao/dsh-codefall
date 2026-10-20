@@ -113,10 +113,6 @@ This is a color-mapping diagram, not a full application screenshot. The hue cont
 
 See [Matrix portal and window-restore playback](docs/PORTAL.md) for implementation details and acceptance records, in Chinese. Open `preview/index.html` locally, select “就绪” (Ready), then “交互” (Interact) to preview the portal. This is an offline demonstration rather than an actual Harness window.
 
-The root [screenshots.json](screenshots.json) declares **only the green digital-waterfall GIF on a black background** as the market preview. Both READMEs also embed only this effect GIF. Settings, light-mode, and hue illustrations remain available through text links so automatic README extraction does not mistake them for cover images.
-
-Push changes to your own GitHub default branch, wait for a subsequent screenshot collection and deployment, then reopen the market to fetch the new catalog. This is not an immediate refresh. Presentation-only changes do not require another catalog PR or a new npm release. Whether the card preserves GIF animation depends on the market's image processing; if it shows a static frame, open the preview to view the original GIF.
-
 ## License
 
 [MIT](LICENSE)
